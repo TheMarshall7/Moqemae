@@ -1,0 +1,984 @@
+<html lang="en" class="bg-[#050108] scroll-smooth antialiased selection:bg-[#c084fc] selection:text-black"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOQEMÀE | The Future of Music</title>
+<!-- TAILWIND -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- ICONS -->
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+
+<!-- TAILWIND CONFIG OVERRIDES -->
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+'void': '#050108', // Deep Purple Black
+'signal': '#c084fc', // Electric Violet
+'concrete': '#1a1025', // Dark purple-grey
+},
+fontFamily: {
+'display': ['"Space Grotesk"', 'sans-serif'],
+'mono': ['"JetBrains Mono"', 'monospace'],
+},
+backgroundImage: {
+'noise': "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.65\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E')",
+}
+}
+}
+}
+</script>
+<style>
+/* --- CORE STYLES --- */
+body {
+cursor: none;
+overflow-x: hidden;
+}
+/* PRELOADER */
+body.loading {
+overflow: hidden;
+}
+.loader-curtain {
+position: fixed;
+inset: 0;
+background: #020003;
+z-index: 9999;
+display: flex;
+justify-content: center;
+align-items: center;
+transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+/* TEXTURE LAYER */
+.noise-overlay {
+position: fixed;
+inset: 0;
+pointer-events: none;
+z-index: 50;
+opacity: 0.04;
+background-image: var(--tw-bg-noise);
+}
+/* TYPOGRAPHY UTILS */
+.text-stroke {
+-webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+color: transparent;
+}
+.text-stroke-signal {
+-webkit-text-stroke: 1px rgba(192, 132, 252, 0.5);
+color: transparent;
+}
+/* CUSTOM CURSOR */
+.cursor-dot, .cursor-ring {
+position: fixed;
+top: 0;
+left: 0;
+transform: translate(-50%, -50%);
+pointer-events: none;
+z-index: 10000;
+}
+.cursor-dot {
+width: 6px;
+height: 6px;
+background: #c084fc;
+}
+.cursor-ring {
+width: 32px;
+height: 32px;
+border: 1px solid rgba(255, 255, 255, 0.2);
+transition: width 0.3s, height 0.3s, background 0.3s;
+}
+body:hover .cursor-ring { opacity: 1; }
+/* UTILITIES */
+.glass-panel {
+background: rgba(18, 10, 26, 0.6);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* ANIMATIONS */
+.reveal-text { clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%); }
+.reveal-inner {
+transform: translateY(110%);
+transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.is-visible .reveal-inner { transform: translateY(0); }
+.btn-magnetic { transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.glitch-wrapper:hover img {
+filter: contrast(120%) brightness(110%) hue-rotate(10deg);
+transform: scale(1.02);
+}
+@keyframes marquee {
+0% { transform: translateX(0); }
+100% { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 20s linear infinite; }
+.perspective-1000 { perspective: 1000px; }
+.transform-style-3d { transform-style: preserve-3d; }
+.tilt-target {
+transition: transform 0.1s ease-out;
+transform-style: preserve-3d;
+will-change: transform;
+}
+.tilt-inner { transform: translateZ(30px); }
+/* AUDIO VISUALIZER BARS */
+.audio-bar {
+animation: audio-bounce 1s infinite ease-in-out;
+}
+@keyframes audio-bounce {
+0%, 100% { height: 20%; }
+50% { height: 100%; }
+}
+</style>
+</head>
+
+<body class="loading text-zinc-300 font-light bg-void">
+
+    <!-- LOADING CURTAIN -->
+    <div class="loader-curtain" id="loader">
+        <div class="flex flex-col items-center gap-4">
+            <div class="flex items-end gap-1 h-8">
+                <div class="w-1 bg-signal animate-pulse h-full"></div>
+                <div class="w-1 bg-signal animate-pulse h-1/2 delay-75"></div>
+                <div class="w-1 bg-signal animate-pulse h-3/4 delay-100"></div>
+                <div class="w-1 bg-signal animate-pulse h-1/4 delay-150"></div>
+            </div>
+            <div class="font-mono text-xs text-signal tracking-[0.3em] uppercase">
+                Initializing Audio Engine
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL FX -->
+    <div class="noise-overlay"></div>
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-ring hidden md:block rounded-full"></div>
+
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 left-0 right-0 z-40 px-6 py-6 flex justify-between items-center mix-blend-difference text-white">
+        <!-- REPLACED LOGO SECTION -->
+        <a href="#" class="group flex items-center">
+            <img src="https://storage.googleapis.com/msgsndr/irv058nOyyGPwN0g2q4n/media/6904212f3469605e1c5e1f2c.png" alt="MOQEMÀE Logo" class="h-10 md:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_8px_rgba(192,132,252,0.4)]">
+        </a>
+
+        <div class="hidden md:flex items-center gap-12 bg-white/5 backdrop-blur-sm px-8 py-2 border border-white/10 rounded-full">
+            <a href="#releases" class="nav-link font-mono text-[10px] uppercase tracking-widest hover:text-signal transition-colors flex items-center gap-1">
+                Music
+            </a>
+            <a href="#about" class="nav-link font-mono text-[10px] uppercase tracking-widest hover:text-signal transition-colors">
+                Bio
+            </a>
+            <a href="#cv" class="nav-link font-mono text-[10px] uppercase tracking-widest hover:text-signal transition-colors">
+                CV
+            </a>
+        </div>
+
+        <a href="#contact" class="btn-magnetic group relative overflow-hidden bg-white text-black px-6 py-2 font-mono text-[10px] font-semibold uppercase tracking-widest hover:bg-signal transition-colors duration-300">
+            <span class="relative z-10 flex items-center gap-2">
+                Booking
+                <iconify-icon icon="lucide:mic-2" class="text-xs"></iconify-icon>
+            </span>
+        </a>
+    </nav>
+
+    <main>
+        <!-- HERO SECTION -->
+        <section class="relative h-screen w-full overflow-hidden flex flex-col justify-center items-center">
+            <!-- Background -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://storage.googleapis.com/msgsndr/irv058nOyyGPwN0g2q4n/media/69505fcfe889d313039f578f.png" alt="Moqemàe Hero" class="w-full h-full object-cover scale-110 opacity-50 grayscale contrast-125 mix-blend-overlay" id="hero-img">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#050108] via-[#050108]/60 to-transparent"></div>
+            </div>
+
+            <!-- HUD Elements -->
+            <div class="absolute top-1/2 left-6 md:left-12 -translate-y-1/2 hidden md:flex flex-col gap-8 z-10 opacity-50 mix-blend-screen">
+                <div class="writing-vertical-lr rotate-180 font-mono text-[9px] tracking-[0.2em] border-l border-white/20 pl-4 h-32 flex items-center">
+                    TORONTO // ON // CA
+                </div>
+                <div class="w-px h-12 bg-gradient-to-b from-signal to-transparent"></div>
+            </div>
+
+            <div class="absolute bottom-12 right-6 md:right-12 z-20 text-right">
+                <div class="glass-panel px-6 py-4 rounded-sm border-l-2 border-signal/80 backdrop-blur-xl bg-[#0a0510]/40 tilt-target transform-style-3d hover:shadow-[0_0_30px_rgba(192,132,252,0.1)] border-white/5">
+                    <div class="flex items-center justify-end gap-2 mb-1">
+                        <span class="block w-1.5 h-1.5 bg-signal rounded-full animate-pulse shadow-[0_0_10px_#c084fc]"></span>
+                        <span class="font-mono text-[9px] text-signal uppercase tracking-widest">
+                            Total Streams
+                        </span>
+                    </div>
+                    <div class="font-display text-5xl font-semibold text-white tracking-tighter tabular-nums">
+                        260K+
+                    </div>
+                    <div class="flex justify-end gap-4 mt-2">
+                        <div class="font-mono text-[9px] text-zinc-500 uppercase tracking-widest">
+                            Global
+                        </div>
+                        <div class="font-mono text-[9px] text-zinc-500 uppercase tracking-widest">
+                            Verified
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="relative z-10 w-full max-w-[1800px] mx-auto px-6 md:px-12 pt-20">
+                <div class="mb-8 flex flex-col items-center gap-4 reveal-text">
+                    <div class="reveal-inner inline-flex items-center gap-3 px-4 py-1.5 border border-signal/20 bg-signal/5 backdrop-blur-md rounded-full">
+                        <div class="flex items-end gap-0.5 h-3">
+                            <div class="w-0.5 bg-signal audio-bar" style="animation-delay: 0ms"></div>
+                            <div class="w-0.5 bg-signal audio-bar" style="animation-delay: 150ms"></div>
+                            <div class="w-0.5 bg-signal audio-bar" style="animation-delay: 300ms"></div>
+                        </div>
+                        <span class="font-mono text-[10px] text-signal tracking-[0.2em] uppercase font-semibold">
+                            Now Playing: Tweakin
+                        </span>
+                    </div>
+                </div>
+
+                <h1 class="relative z-20 flex flex-col items-center font-display font-semibold text-[13vw] leading-[0.8] tracking-[-0.06em] text-white uppercase mix-blend-normal select-none pointer-events-none perspective-1000">
+                    <div class="reveal-text">
+                        <span class="block reveal-inner delay-100 tilt-target" data-tilt-amount="10">
+                            MOQEMÀE
+                        </span>
+                    </div>
+                    <div class="reveal-text">
+                        <span class="block reveal-inner delay-200 text-transparent text-stroke md:text-stroke-2 opacity-60 tilt-target" data-tilt-amount="20">
+                            The Future
+                        </span>
+                    </div>
+                </h1>
+
+                <div class="mt-12 md:mt-16 flex flex-col md:flex-row items-start md:items-end justify-between border-t border-white/10 pt-8 reveal-text">
+                    <div class="reveal-inner delay-300 max-w-xl">
+                        <p class="font-mono text-sm md:text-[15px] text-zinc-400 leading-relaxed max-w-xl text-center md:text-left">
+                            <span class="text-white font-semibold">
+                                The King of Melodies.
+                            </span>
+                            Blending genres to create a new sonic landscape. 
+                            From "Asante" to 
+                            <span class="text-signal/80 border-b border-signal/20 pb-0.5">
+                                Moqemàe
+                            </span>
+                            , the evolution is absolute.
+                        </p>
+                    </div>
+
+                    <div class="reveal-inner delay-500 mt-8 md:mt-0">
+                        <a href="#releases" class="btn-magnetic group relative inline-flex items-center justify-center px-10 py-5 bg-signal overflow-hidden transition-all duration-300 hover:shadow-[0_0_40px_rgba(192,132,252,0.3)]">
+                            <div class="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.86,0,0.07,1)]"></div>
+                            <span class="relative z-10 font-mono text-xs font-semibold text-black uppercase tracking-[0.25em] flex items-center gap-3">
+                                Stream_Music
+                                <iconify-icon icon="lucide:play" class="text-sm group-hover:translate-x-1 transition-transform"></iconify-icon>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MARQUEE DIVIDER -->
+        <div class="py-6 bg-signal overflow-hidden border-y border-black">
+            <div class="animate-marquee whitespace-nowrap flex gap-12 items-center">
+                <span class="text-3xl font-display font-semibold text-black tracking-tighter uppercase">
+                    King of Melodies
+                </span>
+                <iconify-icon icon="lucide:disc-3" class="text-xl text-black animate-spin-slow"></iconify-icon>
+                <span class="text-3xl font-display font-semibold text-black tracking-tighter uppercase">
+                    Pop Hip-Hop
+                </span>
+                <iconify-icon icon="lucide:disc-3" class="text-xl text-black"></iconify-icon>
+                <span class="text-3xl font-display font-semibold text-black tracking-tighter uppercase">
+                    Award Winning
+                </span>
+                <iconify-icon icon="lucide:disc-3" class="text-xl text-black"></iconify-icon>
+                <span class="text-3xl font-display font-semibold text-black tracking-tighter uppercase">
+                    Genre Fluid
+                </span>
+                <iconify-icon icon="lucide:disc-3" class="text-xl text-black"></iconify-icon>
+                <span class="text-3xl font-display font-semibold text-black tracking-tighter uppercase">
+                    Moqemàe
+                </span>
+                <iconify-icon icon="lucide:disc-3" class="text-xl text-black"></iconify-icon>
+            </div>
+        </div>
+
+        <!-- LATEST RELEASES -->
+        <section id="releases" class="relative py-32 px-6 md:px-12 bg-void">
+            <div class="max-w-[1800px] mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-24 pb-6 border-b border-white/10">
+                    <h2 class="text-6xl md:text-8xl font-display font-semibold text-white tracking-[-0.04em] mb-4 md:mb-0">
+                        SONIC
+                        <span class="text-zinc-800">_LOGS</span>
+                    </h2>
+                    <div class="font-mono text-xs text-zinc-500 uppercase tracking-widest text-right">
+                        <div>Discography: Active</div>
+                        <div>Status: Streaming</div>
+                    </div>
+                </div>
+
+                <!-- SINGLE 01: TWEAKIN -->
+                <div class="sticky top-24 mb-24 glass-panel group transition-all duration-500 hover:border-signal/50">
+                    <div class="grid grid-cols-1 lg:grid-cols-2">
+                        <div class="relative h-[60vh] lg:h-auto overflow-hidden glitch-wrapper border-b lg:border-b-0 lg:border-r border-white/10">
+                            <!-- Placeholder for Tweakin Cover -->
+                            <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&amp;w=2670&amp;auto=format&amp;fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 filter grayscale group-hover:grayscale-0" alt="Tweakin Single Art">
+                            <div class="absolute inset-0 bg-signal/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay"></div>
+                            <div class="absolute top-6 left-6 px-3 py-1 bg-black/80 backdrop-blur text-white font-mono text-[10px] uppercase tracking-widest border border-white/20">
+                                Single // 2024
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-16 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-8">
+                                    <span class="w-2 h-2 bg-signal rounded-full shadow-[0_0_10px_#c084fc]"></span>
+                                    <span class="font-mono text-[10px] text-zinc-400 uppercase tracking-widest">
+                                        Debut Under Rebrand
+                                    </span>
+                                </div>
+                                <h3 class="text-4xl md:text-5xl font-display font-semibold text-white mb-6 leading-none uppercase">
+                                    Tweakin
+                                    <br>
+                                    <span class="text-zinc-600">Single</span>
+                                </h3>
+                                <p class="text-zinc-400 font-mono text-sm leading-relaxed max-w-md">
+                                    "I can't live in peace nowadays."<br>
+                                    The debut single under the new Moqemàe alias. Composed by Denzelxi. Mix and mastered by Yuri Koller. A testament to growth and refining the craft.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-8 mt-16 pt-8 border-t border-white/10">
+                                <div>
+                                    <div class="flex gap-4">
+                                        <a href="#" class="text-2xl text-white hover:text-signal transition-colors"><iconify-icon icon="lucide:music"></iconify-icon></a>
+                                        <a href="#" class="text-2xl text-white hover:text-signal transition-colors"><iconify-icon icon="simple-icons:spotify"></iconify-icon></a>
+                                        <a href="#" class="text-2xl text-white hover:text-signal transition-colors"><iconify-icon icon="simple-icons:applemusic"></iconify-icon></a>
+                                    </div>
+                                    <div class="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mt-4">
+                                        Listen Everywhere
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-4xl md:text-5xl font-display font-semibold text-signal tracking-tighter">
+                                        OUT NOW
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SINGLE 02: DIAGONAL -->
+                <div class="sticky top-28 mb-12 glass-panel group transition-all duration-500 hover:border-signal/50">
+                    <div class="grid grid-cols-1 lg:grid-cols-2">
+                        <div class="relative h-[60vh] lg:h-auto overflow-hidden glitch-wrapper border-b lg:border-b-0 lg:border-r border-white/10">
+                            <img src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&amp;w=2670&amp;auto=format&amp;fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 filter grayscale group-hover:grayscale-0" alt="Diagonal Single Art">
+                            <div class="absolute inset-0 bg-signal/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay"></div>
+                            <div class="absolute top-6 left-6 px-3 py-1 bg-black/80 backdrop-blur text-white font-mono text-[10px] uppercase tracking-widest border border-white/20">
+                                Legacy // Asante
+                            </div>
+                        </div>
+                        <div class="p-8 md:p-16 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-8">
+                                    <span class="w-2 h-2 bg-signal rounded-full shadow-[0_0_10px_#c084fc]"></span>
+                                    <span class="font-mono text-[10px] text-zinc-400 uppercase tracking-widest">
+                                        Viral Hit
+                                    </span>
+                                </div>
+                                <h3 class="text-4xl md:text-5xl font-display font-semibold text-white mb-6 leading-none uppercase">
+                                    Diagonal
+                                    <br>
+                                    <span class="text-zinc-600">Breakout</span>
+                                </h3>
+                                <p class="text-zinc-400 font-mono text-sm leading-relaxed max-w-md">
+                                    Released under the alias "Asante", this track defined a moment. Released June 2020.
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-8 mt-16 pt-8 border-t border-white/10">
+                                <div>
+                                    <div class="text-4xl md:text-5xl font-display font-semibold text-white tracking-tighter">
+                                        153K+
+                                    </div>
+                                    <div class="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mt-1">
+                                        Spotify Streams
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-4xl md:text-5xl font-display font-semibold text-signal tracking-tighter">
+                                        2020
+                                    </div>
+                                    <div class="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mt-1">
+                                        Release Year
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CV / BIO SECTION -->
+        <section id="cv" class="relative py-32 bg-[#0a060e] overflow-hidden">
+            <!-- Grid Background -->
+            <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 pointer-events-none"></div>
+
+            <div class="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
+                <div class="mb-24 flex flex-col md:flex-row justify-between items-end">
+                    <div>
+                        <h2 class="text-6xl md:text-[8vw] font-display font-semibold text-white tracking-[-0.04em] leading-[0.8] mb-6">
+                            ORIGIN
+                        </h2>
+                        <p class="font-mono text-zinc-500 max-w-xl">
+                            The journey from Toronto to the world stage.
+                        </p>
+                    </div>
+                    <div class="mt-8 md:mt-0">
+                         <div class="inline-flex items-center gap-2 px-4 py-2 border border-white/10 bg-white/5 rounded-full">
+                            <span class="w-1.5 h-1.5 bg-signal rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-mono text-white uppercase tracking-widest">Toronto / London ON</span>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- QUOTE HIGHLIGHT -->
+                <div class="mb-24 glass-panel p-12 md:p-16 border-l-4 border-signal/80">
+                    <div class="flex items-start gap-6">
+                        <iconify-icon icon="lucide:quote" class="text-5xl text-signal/40 flex-shrink-0 mt-2"></iconify-icon>
+                        <div>
+                            <p class="text-2xl md:text-3xl font-display font-semibold text-white leading-relaxed mb-4">
+                                "Moqemàe one-of-a-kind vocals and songwriting ability will dominate the music industry in the near future."
+                            </p>
+                            <div class="w-24 h-px bg-signal/40 mt-6"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN BIO -->
+                <div class="mb-24 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex items-center gap-3 mb-6">
+                                <span class="w-2 h-2 bg-signal rounded-full shadow-[0_0_10px_#c084fc]"></span>
+                                <span class="font-mono text-[10px] text-signal uppercase tracking-widest">The Artist</span>
+                            </div>
+                            <h3 class="text-4xl md:text-5xl font-display font-semibold text-white mb-6 leading-tight">
+                                The Future
+                                <br>
+                                <span class="text-signal">"King of Melodies"</span>
+                            </h3>
+                            <p class="text-zinc-300 font-mono text-base leading-relaxed mb-6">
+                                The future "King of Melodies," Moqemàe is a multifaceted artist hailing from Toronto, Ontario, Canada. A distinguished singer, rapper, and songwriter, Moqemàe has earned acclaim as an award-winning artist and captivating performer. His musical journey transcends traditional genres, weaving a rich soundscape that reflects various moods.
+                            </p>
+                        </div>
+
+                        <div class="pt-8 border-t border-white/10">
+                            <div class="flex items-center gap-3 mb-6">
+                                <iconify-icon icon="lucide:music-2" class="text-signal text-xl"></iconify-icon>
+                                <span class="font-mono text-[10px] text-signal uppercase tracking-widest">Musical Roots</span>
+                            </div>
+                            <p class="text-zinc-300 font-mono text-base leading-relaxed">
+                                Moqemàe grew up in a music-oriented family, where music was playing around the house 24/7. His love for music was ignited by his mother, who exposed him to a diverse range of artists spanning from <span class="text-white">Notorious B.I.G, Mary J. Blige and Sade</span> to <span class="text-white">The Eagles, Bon Jovi and Israel Houghton</span> in a single listening session. She is the reason why Moqemàe didn't know genres existed before he got into high school. Embracing this eclectic influence, Moqemàe identifies himself as a <span class="text-signal font-semibold">mood creator</span> rather than being confined to a specific genre.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="glass-panel p-8 border border-white/5">
+                            <div class="flex items-center gap-3 mb-6">
+                                <iconify-icon icon="lucide:trophy" class="text-signal text-xl"></iconify-icon>
+                                <span class="font-mono text-[10px] text-signal uppercase tracking-widest">Awards & Recognition</span>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="border-l-2 border-signal/60 pl-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-xs font-mono text-signal uppercase tracking-widest">Winner</span>
+                                        <span class="text-xs font-mono text-zinc-500">2023</span>
+                                    </div>
+                                    <p class="text-white font-display font-semibold mb-1">Fan Favorite</p>
+                                    <p class="text-sm font-mono text-zinc-400">Forest City London Music Awards</p>
+                                </div>
+                                <div class="border-l-2 border-signal/60 pl-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-xs font-mono text-signal uppercase tracking-widest">Winner</span>
+                                        <span class="text-xs font-mono text-zinc-500">2021</span>
+                                    </div>
+                                    <p class="text-white font-display font-semibold mb-1">Best Hip-Hop/R&B Artist</p>
+                                    <p class="text-sm font-mono text-zinc-400">Essence and Culture Awards</p>
+                                    <p class="text-xs font-mono text-zinc-500 mt-2">Alongside Motown's Emanuel & Universal's King Cruff</p>
+                                </div>
+                                <div class="border-l-2 border-zinc-700 pl-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-xs font-mono text-zinc-500 uppercase tracking-widest">Nominee</span>
+                                        <span class="text-xs font-mono text-zinc-500">2021</span>
+                                    </div>
+                                    <p class="text-white font-display font-semibold mb-1">Best Pop Artist</p>
+                                    <p class="text-sm font-mono text-zinc-400">Forest City London Music Awards</p>
+                                    <p class="text-xs font-mono text-signal mt-2">Youngest Black Male Artist nominated in 19-year history</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-8 border border-white/5">
+                            <div class="flex items-center gap-3 mb-6">
+                                <iconify-icon icon="lucide:graduation-cap" class="text-signal text-xl"></iconify-icon>
+                                <span class="font-mono text-[10px] text-signal uppercase tracking-widest">Education</span>
+                            </div>
+                            <h4 class="text-xl font-display font-semibold text-white mb-3">Music Industry Arts Program</h4>
+                            <p class="text-sm font-mono text-zinc-300 mb-4">Fanshawe College</p>
+                            <p class="text-sm font-mono text-zinc-400 leading-relaxed">
+                                Graduate mentored by <span class="text-white">2-time Juno award winner and Grammy-nominated Producer Dan Brodbeck</span>. This renowned program solidified Moqemàe's foundation in the music business, production, and engineering.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PERFORMANCES & VENUES -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                    <div class="glass-panel p-8 border border-white/5 hover:border-signal/40 transition-all duration-500">
+                        <div class="flex items-center gap-3 mb-6">
+                            <iconify-icon icon="lucide:mic" class="text-signal text-xl"></iconify-icon>
+                            <span class="font-mono text-[10px] text-signal uppercase tracking-widest">Notable Performances</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <span class="text-signal font-mono text-xs mt-1">→</span>
+                                <div>
+                                    <p class="text-white font-display font-semibold">Lee's Palace</p>
+                                    <p class="text-sm font-mono text-zinc-400">Opening for Dax</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-signal font-mono text-xs mt-1">→</span>
+                                <div>
+                                    <p class="text-white font-display font-semibold">Hip-hop Supermarket</p>
+                                    <p class="text-sm font-mono text-zinc-400">Headline performance at The Rivoli</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-signal font-mono text-xs mt-1">→</span>
+                                <div>
+                                    <p class="text-white font-display font-semibold">Rec Room</p>
+                                    <p class="text-sm font-mono text-zinc-400">Sharing the stage with veteran artist MadChild</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-8 border border-white/5 hover:border-signal/40 transition-all duration-500">
+                        <div class="flex items-center gap-3 mb-6">
+                            <iconify-icon icon="lucide:map-pin" class="text-signal text-xl"></iconify-icon>
+                            <span class="font-mono text-[10px] text-signal uppercase tracking-widest">London, Ontario</span>
+                        </div>
+                        <p class="text-sm font-mono text-zinc-300 mb-6 leading-relaxed">
+                            Active in the <span class="text-white font-semibold">UNESCO city of music</span>, London, Ontario, Moqemàe has left an indelible mark on the local music scene.
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-signal rounded-full"></span>
+                                <span class="text-sm font-mono text-zinc-400">London Music Hall</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-signal rounded-full"></span>
+                                <span class="text-sm font-mono text-zinc-400">Budweiser Gardens "Revive Live"</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-signal rounded-full"></span>
+                                <span class="text-sm font-mono text-zinc-400">Western University Events</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-signal rounded-full"></span>
+                                <span class="text-sm font-mono text-zinc-400">Corporate shows for RBC & TD Bank</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REBRAND HIGHLIGHT -->
+                <div class="glass-panel p-8 md:p-12 border-2 border-signal/30 bg-signal/5">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div>
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-2 h-2 bg-signal rounded-full animate-pulse shadow-[0_0_10px_#c084fc]"></span>
+                                <span class="font-mono text-[10px] text-signal uppercase tracking-widest">New Era</span>
+                            </div>
+                            <h3 class="text-3xl md:text-4xl font-display font-semibold text-white mb-3">
+                                The Rebrand: <span class="text-signal">Moqemàe</span>
+                            </h3>
+                            <p class="text-zinc-300 font-mono text-base leading-relaxed max-w-2xl">
+                                Under the new rebrand, Moqemàe released his debut single <span class="text-white font-semibold">"Tweakin"</span> on April 23rd, with much more music on the way.
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-5xl md:text-6xl font-display font-semibold text-signal tracking-tighter mb-2">
+                                2024
+                            </div>
+                            <div class="text-xs font-mono text-zinc-500 uppercase tracking-widest">
+                                Debut Single
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT TEXT SECTION -->
+        <section id="about" class="py-24 px-6 md:px-12 bg-[#020003] border-t border-white/10">
+             <div class="max-w-4xl mx-auto text-center">
+                <iconify-icon icon="lucide:quote" class="text-4xl text-zinc-700 mb-8"></iconify-icon>
+                <h3 class="text-2xl md:text-3xl font-display leading-tight text-zinc-300 mb-8">
+                    "Moqemàe one-of-a-kind vocals and songwriting ability will dominate the music industry in the near future."
+                </h3>
+                <div class="w-12 h-px bg-signal mx-auto mb-8"></div>
+                <p class="font-mono text-sm text-zinc-500 leading-relaxed">
+                    Hailing from Toronto, Moqemàe (formerly Asante) grew up in a music-oriented family, exposed to everything from Notorious B.I.G and Sade to Bon Jovi. Embracing this eclectic influence, he identifies as a <span class="text-white">mood creator</span> rather than being confined to a specific genre.
+                </p>
+             </div>
+        </section>
+
+        <!-- PRESS RELEASE SECTION -->
+        <section class="py-32 px-6 md:px-12 bg-[#0a060e] overflow-hidden">
+            <!-- Grid Background -->
+            <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 pointer-events-none"></div>
+
+            <div class="max-w-[1800px] mx-auto relative z-10">
+                <div class="mb-24 text-center">
+                    <h2 class="text-6xl md:text-[8vw] font-display font-semibold text-white tracking-[-0.04em] leading-[0.8] mb-6">
+                        PRESS
+                        <br>
+                        <span class="text-signal">_RELEASES</span>
+                    </h2>
+                    <p class="font-mono text-zinc-500 max-w-xl mx-auto">
+                        Featured interviews, profiles, and media coverage.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- PRESS 01: INTERROBANG -->
+                    <a href="#" class="group relative glass-panel p-8 border border-white/5 hover:border-signal/40 transition-all duration-500 hover:bg-[#12081a] overflow-hidden tilt-target">
+                        <div class="relative z-10 tilt-inner">
+                            <div class="w-16 h-16 mb-6 bg-gradient-to-br from-signal/20 to-signal/5 rounded-lg flex items-center justify-center overflow-hidden border border-signal/20">
+                                <div class="text-3xl font-display font-bold text-signal">?</div>
+                            </div>
+                            <h3 class="text-xl font-display font-semibold text-white mb-3 leading-tight group-hover:text-signal transition-colors">
+                                Creative Conversations Over Coffee: Asante
+                            </h3>
+                            <p class="text-sm font-mono text-zinc-400 leading-relaxed mb-6">
+                                Interview with Ilhan Aden from InterroBang Fanshawe, London Ontario
+                            </p>
+                            <div class="flex items-center gap-2 text-xs font-mono text-signal uppercase tracking-widest">
+                                <span>Read Article</span>
+                                <iconify-icon icon="lucide:arrow-right" class="group-hover:translate-x-2 transition-transform"></iconify-icon>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- PRESS 02: 519 MAGAZINE -->
+                    <a href="#" class="group relative glass-panel p-8 border border-white/5 hover:border-signal/40 transition-all duration-500 hover:bg-[#12081a] overflow-hidden tilt-target">
+                        <div class="relative z-10 tilt-inner">
+                            <div class="w-16 h-16 mb-6 bg-gradient-to-br from-white/20 to-white/5 rounded-lg flex items-center justify-center overflow-hidden border border-white/20">
+                                <div class="text-2xl font-display font-bold text-white">519</div>
+                            </div>
+                            <h3 class="text-xl font-display font-semibold text-white mb-3 leading-tight group-hover:text-signal transition-colors">
+                                519 Indie Music Profile: Asante from Richmond Hill
+                            </h3>
+                            <p class="text-sm font-mono text-zinc-400 leading-relaxed mb-6">
+                                Full page interview with 519 Magazine
+                            </p>
+                            <div class="flex items-center gap-2 text-xs font-mono text-signal uppercase tracking-widest">
+                                <span>Read Article</span>
+                                <iconify-icon icon="lucide:arrow-right" class="group-hover:translate-x-2 transition-transform"></iconify-icon>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- PRESS 03: INTERROBANG SPECIAL -->
+                    <a href="#" class="group relative glass-panel p-8 border border-white/5 hover:border-signal/40 transition-all duration-500 hover:bg-[#12081a] overflow-hidden tilt-target">
+                        <div class="relative z-10 tilt-inner">
+                            <div class="w-16 h-16 mb-6 bg-gradient-to-br from-signal/20 to-signal/5 rounded-lg flex items-center justify-center overflow-hidden border border-signal/20">
+                                <iconify-icon icon="lucide:podcast" class="text-2xl text-signal"></iconify-icon>
+                            </div>
+                            <h3 class="text-xl font-display font-semibold text-white mb-3 leading-tight group-hover:text-signal transition-colors">
+                                Big Things Coming From Fanshawe's Asante
+                            </h3>
+                            <p class="text-sm font-mono text-zinc-400 leading-relaxed mb-6">
+                                Special edition of the Interrobang - Asante speaks on upcoming project and performances
+                            </p>
+                            <div class="flex items-center gap-2 text-xs font-mono text-signal uppercase tracking-widest">
+                                <span>Read Article</span>
+                                <iconify-icon icon="lucide:arrow-right" class="group-hover:translate-x-2 transition-transform"></iconify-icon>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- PRESS 04: 1069 THEEX -->
+                    <a href="#" class="group relative glass-panel p-8 border border-white/5 hover:border-signal/40 transition-all duration-500 hover:bg-[#12081a] overflow-hidden tilt-target">
+                        <div class="relative z-10 tilt-inner">
+                            <div class="w-16 h-16 mb-6 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-lg flex items-center justify-center overflow-hidden border border-blue-500/20">
+                                <iconify-icon icon="lucide:radio" class="text-2xl text-blue-400"></iconify-icon>
+                            </div>
+                            <h3 class="text-xl font-display font-semibold text-white mb-3 leading-tight group-hover:text-signal transition-colors">
+                                Meet Asante: Fanshawe's Next Big Artist
+                            </h3>
+                            <p class="text-sm font-mono text-zinc-400 leading-relaxed mb-6">
+                                Interview with Kate Otterbein from 1069 TheEX
+                            </p>
+                            <div class="flex items-center gap-2 text-xs font-mono text-signal uppercase tracking-widest">
+                                <span>Read Article</span>
+                                <iconify-icon icon="lucide:arrow-right" class="group-hover:translate-x-2 transition-transform"></iconify-icon>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- PRESS 05: MUSIC ONTARIO -->
+                    <a href="#" class="group relative glass-panel p-8 border border-white/5 hover:border-signal/40 transition-all duration-500 hover:bg-[#12081a] overflow-hidden tilt-target">
+                        <div class="relative z-10 tilt-inner">
+                            <div class="w-16 h-16 mb-6 bg-gradient-to-br from-red-500/20 to-red-500/5 rounded-lg flex items-center justify-center overflow-hidden border border-red-500/20">
+                                <div class="text-xs font-display font-bold text-red-400 text-center leading-tight">MUSIC<br>ONTARIO</div>
+                            </div>
+                            <h3 class="text-xl font-display font-semibold text-white mb-3 leading-tight group-hover:text-signal transition-colors">
+                                Canadian Songwriting Challenge
+                            </h3>
+                            <p class="text-sm font-mono text-zinc-400 leading-relaxed mb-6">
+                                Meet the songwriters for the Ontario edition of the 2021 Canadian Songwriter Challenge in London!
+                            </p>
+                            <div class="flex items-center gap-2 text-xs font-mono text-signal uppercase tracking-widest">
+                                <span>Read Article</span>
+                                <iconify-icon icon="lucide:arrow-right" class="group-hover:translate-x-2 transition-transform"></iconify-icon>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- PRESS 06: AUTUMN VIBES -->
+                    <a href="#" class="group relative glass-panel p-8 border border-white/5 hover:border-signal/40 transition-all duration-500 hover:bg-[#12081a] overflow-hidden tilt-target">
+                        <div class="relative z-10 tilt-inner">
+                            <div class="w-16 h-16 mb-6 bg-gradient-to-br from-orange-500/20 to-orange-500/5 rounded-lg flex items-center justify-center overflow-hidden border border-orange-500/20">
+                                <iconify-icon icon="lucide:leaf" class="text-2xl text-orange-400"></iconify-icon>
+                            </div>
+                            <h3 class="text-xl font-display font-semibold text-white mb-3 leading-tight group-hover:text-signal transition-colors">
+                                Huge Lineup of London Musicians for Autumn Vibes
+                            </h3>
+                            <p class="text-sm font-mono text-zinc-400 leading-relaxed mb-6">
+                                The hype leading up to Asante's headline performance at "Autumn Vibes"
+                            </p>
+                            <div class="flex items-center gap-2 text-xs font-mono text-signal uppercase tracking-widest">
+                                <span>Read Article</span>
+                                <iconify-icon icon="lucide:arrow-right" class="group-hover:translate-x-2 transition-transform"></iconify-icon>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA SECTION -->
+        <section id="contact" class="min-h-[80vh] flex items-center justify-center relative overflow-hidden bg-void py-20">
+            <!-- Abstract Glow -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-signal/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+            <div class="max-w-5xl mx-auto px-6 text-center relative z-10">
+                <div class="inline-flex items-center gap-3 px-4 py-2 border border-signal/20 bg-signal/5 rounded-full mb-12">
+                    <span class="w-1.5 h-1.5 bg-signal rounded-full animate-pulse shadow-[0_0_8px_#c084fc]"></span>
+                    <span class="text-[10px] font-mono text-signal uppercase tracking-widest font-semibold">
+                        Status: Booking 2024/25
+                    </span>
+                </div>
+
+                <h2 class="text-[10vw] leading-[0.8] font-display font-semibold tracking-[-0.06em] text-white mb-10 uppercase">
+                    Reintroduce
+                    <br>
+                    <span class="text-transparent text-stroke hover:text-white hover:text-stroke-0 transition-colors duration-500 cursor-none">
+                        Yourself.
+                    </span>
+                </h2>
+
+                <p class="text-lg md:text-xl text-zinc-500 font-mono mb-16 max-w-2xl mx-auto leading-relaxed">
+                    "My name is Moqemàe. Pleasure to meet you."
+                    <br>
+                    Ready to collaborate?
+                </p>
+
+                <div class="flex flex-col items-center gap-8">
+                    <a href="mailto:asante.deluy@gmail.com" class="btn-magnetic group relative inline-flex items-center justify-center px-12 py-5 bg-signal overflow-hidden transition-transform hover:scale-105">
+                        <div class="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"></div>
+                        <span class="relative z-10 font-mono text-sm font-semibold text-black uppercase tracking-[0.25em] flex items-center gap-4">
+                            Contact_Mgmt
+                            <iconify-icon icon="lucide:mail" class="group-hover:-translate-y-1 transition-transform"></iconify-icon>
+                        </span>
+                    </a>
+
+                    <div class="flex flex-wrap justify-center gap-8 mt-12">
+                        <a href="#" class="text-zinc-600 hover:text-white transition-colors font-mono text-xs uppercase tracking-widest flex items-center gap-2">
+                            <iconify-icon icon="simple-icons:instagram"></iconify-icon> Instagram
+                        </a>
+                        <a href="#" class="text-zinc-600 hover:text-white transition-colors font-mono text-xs uppercase tracking-widest flex items-center gap-2">
+                            <iconify-icon icon="simple-icons:spotify"></iconify-icon> Spotify
+                        </a>
+                        <a href="#" class="text-zinc-600 hover:text-white transition-colors font-mono text-xs uppercase tracking-widest flex items-center gap-2">
+                            <iconify-icon icon="simple-icons:tiktok"></iconify-icon> TikTok
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-8 w-full text-center">
+                <div class="text-[9px] font-mono text-zinc-800 uppercase tracking-[0.5em]">
+                    MOQEMÀE © 2024 // ALL RIGHTS RESERVED
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- LOADING SEQUENCE ---
+            const loader = document.getElementById('loader');
+            const body = document.body;
+            
+            setTimeout(() => {
+                loader.style.transform = 'translateY(-100%)';
+                body.classList.remove('loading');
+                
+                setTimeout(() => {
+                    document.querySelectorAll('.reveal-inner').forEach((el, index) => {
+                        setTimeout(() => {
+                            el.style.transform = 'translateY(0)';
+                        }, index * 100);
+                    });
+                }, 500);
+            }, 1500);
+
+            // --- CUSTOM CURSOR ---
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorRing = document.querySelector('.cursor-ring');
+
+            if (window.matchMedia("(pointer: fine)").matches) {
+                let mouseX = 0;
+                let mouseY = 0;
+                let ringX = 0;
+                let ringY = 0;
+
+                window.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    
+                    cursorDot.style.left = `${mouseX}px`;
+                    cursorDot.style.top = `${mouseY}px`;
+                });
+
+                const animateRing = () => {
+                    ringX += (mouseX - ringX) * 0.15;
+                    ringY += (mouseY - ringY) * 0.15;
+                    
+                    cursorRing.style.left = `${ringX}px`;
+                    cursorRing.style.top = `${ringY}px`;
+                    
+                    requestAnimationFrame(animateRing);
+                }
+                animateRing();
+
+                const interactives = document.querySelectorAll('a, button, .btn-magnetic');
+                interactives.forEach(el => {
+                    el.addEventListener('mouseenter', () => {
+                        cursorRing.style.width = '60px';
+                        cursorRing.style.height = '60px';
+                        cursorRing.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                        cursorRing.style.border = 'none';
+                        cursorRing.style.mixBlendMode = 'difference';
+                    });
+                    
+                    el.addEventListener('mouseleave', () => {
+                        cursorRing.style.width = '32px';
+                        cursorRing.style.height = '32px';
+                        cursorRing.style.backgroundColor = 'transparent';
+                        cursorRing.style.border = '1px solid rgba(255,255,255,0.2)';
+                        cursorRing.style.mixBlendMode = 'normal';
+                    });
+                });
+            }
+
+            // --- MAGNETIC BUTTONS ---
+            const magnetics = document.querySelectorAll('.btn-magnetic');
+            magnetics.forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    
+                    btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'translate(0px, 0px)';
+                });
+            });
+
+            // --- GSAP ---
+            if (typeof gsap !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+                
+                gsap.utils.toArray('.glass-panel').forEach(panel => {
+                    gsap.from(panel, {
+                        scrollTrigger: {
+                            trigger: panel,
+                            start: "top bottom-=100",
+                            toggleActions: "play none none reverse"
+                        },
+                        y: 50,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "power3.out"
+                    });
+                });
+
+                gsap.from("#cv .group", {
+                    scrollTrigger: {
+                        trigger: "#cv",
+                        start: "top center",
+                    },
+                    y: 100,
+                    opacity: 0,
+                    duration: 0.8,
+                    stagger: 0.1,
+                    ease: "power4.out"
+                });
+
+                gsap.to("#hero-img", {
+                    scrollTrigger: {
+                        trigger: "body",
+                        start: "top top",
+                        end: "bottom top",
+                        scrub: true
+                    },
+                    y: 200,
+                    scale: 1,
+                });
+            }
+        });
+
+        // TILT EFFECT
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.tilt-target');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                if (x > -100 && x < rect.width + 100 && y > -100 && y < rect.height + 100) {
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const rotateX = ((y - centerY) / centerY) * -5;
+                    const rotateY = ((x - centerX) / centerX) * 5;
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                } else {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+                }
+            });
+        });
+    </script>
+
+</body></html>
