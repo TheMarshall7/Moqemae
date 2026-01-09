@@ -342,7 +342,7 @@ pointer-events: all;
         <section class="relative h-screen w-full overflow-hidden flex flex-col justify-center items-center">
             <!-- Background -->
             <div class="absolute inset-0 z-0">
-                <img src="https://storage.googleapis.com/msgsndr/irv058nOyyGPwN0g2q4n/media/69505fcfe889d313039f578f.png" alt="Moqemàe Hero" class="w-full h-full object-cover scale-110 opacity-50 grayscale contrast-125 mix-blend-overlay" id="hero-img">
+                <video src="Asante Rum Runners Video.mp4" autoplay loop muted playsinline class="w-full h-full object-cover scale-110 opacity-50 grayscale contrast-125 mix-blend-overlay" id="hero-img"></video>
                 <div class="absolute inset-0 bg-gradient-to-t from-[#050108] via-[#050108]/60 to-transparent"></div>
             </div>
 
@@ -475,10 +475,12 @@ pointer-events: all;
                 <!-- SINGLE 01: TWEAKIN -->
                 <div class="single-card sticky top-24 mb-24 glass-panel group transition-all duration-500 hover:border-signal/50 cursor-pointer" data-single="tweakin">
                     <div class="grid grid-cols-1 lg:grid-cols-2">
-                        <div class="relative h-[60vh] lg:h-auto overflow-hidden glitch-wrapper border-b lg:border-b-0 lg:border-r border-white/10">
-                            <!-- Placeholder for Tweakin Cover -->
-                            <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&amp;w=2670&amp;auto=format&amp;fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 filter grayscale group-hover:grayscale-0" alt="Tweakin Single Art">
-                            <div class="absolute inset-0 bg-signal/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay"></div>
+                        <div class="relative h-[60vh] lg:h-auto overflow-hidden glitch-wrapper border-b lg:border-b-0 lg:border-r border-white/10 flex items-center justify-center">
+                            <!-- Blurred background -->
+                            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('Tweakin Cover Art.jpg'); filter: blur(40px) brightness(0.3); transform: scale(1.2);"></div>
+                            <!-- Main cover art -->
+                            <img src="Tweakin Cover Art.jpg" class="relative z-10 w-full h-full object-contain transition-transform duration-700 filter grayscale group-hover:grayscale-0" alt="Tweakin Single Art">
+                            <div class="absolute inset-0 bg-signal/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay z-20"></div>
                             <div class="absolute top-6 left-6 px-3 py-1 bg-black/80 backdrop-blur text-white font-mono text-[10px] uppercase tracking-widest border border-white/20">
                                 Single // 2024
                             </div>
@@ -524,9 +526,12 @@ pointer-events: all;
                 <!-- SINGLE 02: DIAGONAL -->
                 <div class="single-card sticky top-28 mb-12 glass-panel group transition-all duration-500 hover:border-signal/50 cursor-pointer" data-single="diagonal">
                     <div class="grid grid-cols-1 lg:grid-cols-2">
-                        <div class="relative h-[60vh] lg:h-auto overflow-hidden glitch-wrapper border-b lg:border-b-0 lg:border-r border-white/10">
-                            <img src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&amp;w=2670&amp;auto=format&amp;fit=crop" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 filter grayscale group-hover:grayscale-0" alt="Diagonal Single Art">
-                            <div class="absolute inset-0 bg-signal/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay"></div>
+                        <div class="relative h-[60vh] lg:h-auto overflow-hidden glitch-wrapper border-b lg:border-b-0 lg:border-r border-white/10 flex items-center justify-center">
+                            <!-- Blurred background -->
+                            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('IMG_3207.jpg'); filter: blur(40px) brightness(0.3); transform: scale(1.2);"></div>
+                            <!-- Main cover art -->
+                            <img src="IMG_3207.jpg" class="relative z-10 w-full h-full object-contain transition-transform duration-700 filter grayscale group-hover:grayscale-0" alt="Diagonal Single Art">
+                            <div class="absolute inset-0 bg-signal/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay z-20"></div>
                             <div class="absolute top-6 left-6 px-3 py-1 bg-black/80 backdrop-blur text-white font-mono text-[10px] uppercase tracking-widest border border-white/20">
                                 Legacy // Asante
                             </div>
@@ -629,7 +634,7 @@ pointer-events: all;
                         <!-- PHOTO SHOWCASE 01 -->
                         <div class="relative group overflow-hidden rounded-lg border border-white/10 hover:border-signal/40 transition-all duration-500">
                             <div class="aspect-[4/3] relative overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=2670&auto=format&fit=crop" alt="Moqemàe Performance" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110">
+                                <img src="IMG_5786.PNG" alt="Moqemàe Performance" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" style="object-position: center 20%;">
                                 <div class="absolute inset-0 bg-gradient-to-t from-void via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
                                 <div class="absolute bottom-4 left-4 right-4">
                                     <div class="font-mono text-[9px] text-signal uppercase tracking-widest mb-1">Live Performance</div>
@@ -647,13 +652,21 @@ pointer-events: all;
                                 Moqemàe grew up in a music-oriented family, where music was playing around the house 24/7. His love for music was ignited by his mother, who exposed him to a diverse range of artists spanning from <span class="text-white">Notorious B.I.G, Mary J. Blige and Sade</span> to <span class="text-white">The Eagles, Bon Jovi and Israel Houghton</span> in a single listening session. She is the reason why Moqemàe didn't know genres existed before he got into high school. Embracing this eclectic influence, Moqemàe identifies himself as a <span class="text-signal font-semibold">mood creator</span> rather than being confined to a specific genre.
                             </p>
                         </div>
+
+                        <!-- PHOTO SHOWCASE 03 - Additional Photo -->
+                        <div class="relative group overflow-hidden rounded-lg border border-white/10 hover:border-signal/40 transition-all duration-500 mt-8">
+                            <div class="aspect-[4/3] relative overflow-hidden">
+                                <img src="IMG_5785.PNG" alt="Moqemàe Performance" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" style="object-position: center 20%;">
+                                <div class="absolute inset-0 bg-gradient-to-t from-void via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="space-y-8">
                         <!-- PHOTO SHOWCASE 02 -->
                         <div class="relative group overflow-hidden rounded-lg border border-white/10 hover:border-signal/40 transition-all duration-500">
                             <div class="aspect-[3/4] relative overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2670&auto=format&fit=crop" alt="Moqemàe Studio" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110">
+                                <img src="Photo (Asante).jpg" alt="Moqemàe" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110">
                                 <div class="absolute inset-0 bg-gradient-to-t from-void via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
                                 <div class="absolute bottom-4 left-4 right-4">
                                     <div class="font-mono text-[9px] text-signal uppercase tracking-widest mb-1">In The Studio</div>
@@ -775,12 +788,11 @@ pointer-events: all;
                 <!-- PHOTO SHOWCASE 03 - Full Width -->
                 <div class="mb-12 relative group overflow-hidden rounded-lg border border-white/10 hover:border-signal/40 transition-all duration-500">
                     <div class="aspect-[21/9] relative overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=2670&auto=format&fit=crop" alt="Moqemàe Concert" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" style="filter: grayscale(100%) brightness(0.6) sepia(40%) saturate(150%) hue-rotate(260deg) contrast(0.9);">
+                        <video src="Asante_ElMocambo_4K_v1 (1).mp4" autoplay loop muted playsinline class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" style="filter: grayscale(100%) brightness(0.6) sepia(40%) saturate(150%) hue-rotate(260deg) contrast(0.9);"></video>
                         <div class="absolute inset-0 bg-gradient-to-t from-void via-void/50 to-transparent opacity-70 group-hover:opacity-50 transition-opacity"></div>
                         <div class="absolute bottom-8 left-8 right-8">
                             <div class="font-mono text-[10px] text-signal uppercase tracking-widest mb-2">Live Experience</div>
                             <div class="text-white font-display text-2xl md:text-3xl">Captivating Audiences</div>
-                            <p class="text-zinc-300 font-mono text-sm mt-2 max-w-2xl">From high school skits to headlining shows, Moqemàe's journey as a natural-born performer continues to evolve.</p>
                         </div>
                     </div>
                 </div>
@@ -1011,8 +1023,13 @@ pointer-events: all;
 
         <!-- CTA SECTION -->
         <section id="contact" class="min-h-[80vh] flex items-center justify-center relative overflow-hidden bg-void py-20">
+            <!-- Background -->
+            <div class="absolute inset-0 z-0">
+                <video src="Asante Rum Runners Video.mp4" autoplay loop muted playsinline class="w-full h-full object-cover scale-110 opacity-50 grayscale contrast-125 mix-blend-overlay"></video>
+                <div class="absolute inset-0 bg-gradient-to-t from-[#050108] via-[#050108]/60 to-transparent"></div>
+            </div>
             <!-- Abstract Glow -->
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-signal/5 rounded-full blur-[120px] pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-signal/5 rounded-full blur-[120px] pointer-events-none z-5"></div>
 
             <div class="max-w-5xl mx-auto px-6 text-center relative z-10">
                 <div class="inline-flex items-center gap-3 px-4 py-2 border border-signal/20 bg-signal/5 rounded-full mb-12">

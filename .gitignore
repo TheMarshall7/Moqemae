@@ -1,0 +1,8 @@
+# Large video files
+*.mp4
+*.mov
+*.avi
+
+# Large image files (if needed)
+# *.jpg
+# *.png
